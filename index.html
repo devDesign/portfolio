@@ -1,0 +1,166 @@
+<!doctype html><title>devDesign</title>
+<script src="./tquery-bundle.min.js"></script>
+<script src="./fonts/droid/droid_serif_bold.typeface.js"></script>
+<script src="./threex.domevent.js"></script>
+<script src="./tquery.domevent.js"></script>
+<script src="./tquery-text.js"></script>
+<script src="./tquery.mesh.linkify.js"></script>
+<script src="./fonts/helvetiker_regular.typeface.js"></script>
+<script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+<body><script>
+
+ 	var viewportwidth = window.innerWidth;
+	var viewportheight = window.innerHeight;
+	
+	var world	= tQuery.createWorld().boilerplate().start();
+		
+	world.removeCameraControls();
+	
+	world.enableDomEvent();	
+
+	var camera = world.tCamera();
+	var camstart = 1.7;
+	camera.position['y'] = camstart;
+	camera.position['z'] = 8;
+
+	tQuery.createAmbientLight().addTo(world).color(0x666666);
+	tQuery.createDirectionalLight().addTo(world).position(1,1,-1).color(0xffffff).intensity(1);
+
+	var container	= tQuery.createObject3D().addTo(world).positionY(-.5 + camstart)
+	var set	= tQuery.createObject3D().addTo(world)
+
+
+	var titleMaterial  = new THREE.MeshNormalMaterial({
+    				ambient  : 0x444444, 
+    				color  : 0xFFFFFF,
+  		});
+
+	var backBox = function(){
+
+		for(var i=-10;i<10;i++){
+
+			var min = -100;
+			var max = i;
+			
+			var random = Math.floor(Math.random() * (max - min + 1)) + min;
+
+			tQuery.createCylinder(10,10,100000)
+						.scaleBy(1/8)
+						.positionY(-20)
+						.positionX(i*10+5)
+						.positionZ(-50)
+						.rotateX(1)
+						.addTo(set).setPhongMaterial();
+
+			if(i!=0){
+				tQuery.createCylinder(10,10,100000)
+						.scaleBy(1/8)
+						.positionY(-20)
+						.positionX(i*10)
+						.positionZ(-50)
+						.rotateX(-1)
+						.addTo(set).setPhongMaterial();
+
+				}
+		}
+
+	}
+	backBox();
+
+	// var sphere = tQuery.createCube(300,400,10)
+	// 				.scaleBy(1/50)
+	// 				.positionY(-6.3)
+	// 				.positionX(0)
+	// 				.positionZ(0)
+	// 				.addTo(container);
+
+
+	var light	= new THREE.DirectionalLight(0xFFFFFF, 3);
+	light.position.set(0, 0.6, -1).normalize();
+	world.tScene().add(light);
+
+	var windowScroll = -0.4;
+	var left = 0;
+	var topMouse = 0;
+	var loaded=false;
+
+ 	window.addEventListener("mousewheel",  function(evt) {
+ 		
+ 		windowScroll = evt['wheelDelta']/250;
+ 		
+ 		camera.position['y'] += windowScroll
+ 		
+ 		if ( camera.position['y']< -5.1 ){
+
+ 			if(loaded==false){
+
+ 				$("<div/>",{ id: "content" }).css({ position:'absolute', top:"3em", width:'100%', height:'1000px', 'background-color':'rgba(255,255,255,0.3)', display:'none'}).appendTo('body').fadeIn();
+ 				loaded=true;
+
+ 			}
+
+ 			container.positionY(camera.position['y']+4.9);
+ 		
+ 		}
+
+ 		if ( camera.position['y']> -5.1 ){
+
+ 			if(loaded==true){
+
+ 				$('#content').fadeOut().remove()
+ 				loaded=false;
+
+ 			}
+
+ 		}
+
+ 		if ( camera.position['y']> 0 ){
+ 		
+
+ 		container.positionY(camera.position['y']-0.5);
+ 		
+ 		}
+
+ 		//camera.lookAt({x:0,y:0,z:0})
+
+	},false);
+
+	window.addEventListener("mousemove",  function(evt) {
+		var delta = 0.0001;
+		getView();
+
+		if(evt.y > topMouse){
+			console.log(topMouse);
+
+			//rotate bottom
+			camera.rotateX(-delta)
+
+		} else{
+	
+			//rotate top
+			camera.rotateX(delta)
+
+		}
+
+		topMouse = evt.y;
+		left = evt.x;
+
+	},false);
+					
+ 	var look = function(point){
+
+ 		camera.lookAt(point);
+ 		//do stuff
+
+ 	}
+
+ 	var getView = function(){
+ 		
+ 		viewportwidth = window.innerWidth,
+     	viewportheight = window.innerHeight
+ 		return[viewportheight,viewportwidth]
+
+ 	} 
+
+
+</script></body>
